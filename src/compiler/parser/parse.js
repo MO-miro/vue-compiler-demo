@@ -1,12 +1,16 @@
-// @flow 
+// @flow
 import parseHtml from './parseHtml'
 import parseText from './parseText'
 import {
-    getAndRemoveAttr
+    getAndRemoveAttr,
+    addDirective,
 } from '../helpers'
 
 const forReg = /(.*?)\s+(?:in|of)\s+(.*)/
 const forIteratorReg = /\((\{[^}]*\}|[^,]*),([^,]*)(?:,([^,]*))?\)/
+const directionReg = /^v-|^@|^:/
+const modifierRE = /\.[^.]+/g
+const argRE = /:(.*)$/
 export default function parse(template :string) : ASTElement | void {
     // tag栈
     const stack = []
@@ -20,12 +24,19 @@ export default function parse(template :string) : ASTElement | void {
                 type: 1,
                 tag: tagName,
                 attrsList,
-                attrsMap: makeAttrsMap(attrsList),//{ [key: string]: string | null };
+                attrsMap: makeAttrsMap(attrsList), // 帮助速查属性
                 parent: curParent || 'root',
                 children: [],
             }
-            // 处理v-xx指令
+            /**
+             * 处理特殊的属性,包括 key, ref, v-xx指令,slot等
+             * 这里暂时只做v-for和v-model的处理
+             * v-model的处理实际是从platforms中传入的options获取，这里放在compiler中。目前只支持input标签
+             */
+            // 处理v-for指令
             processFor(element)
+            // 处理其他指令
+            processAttrs(element)
             // 处理树结构
             if (!root) {
                 root = element
@@ -72,7 +83,7 @@ export default function parse(template :string) : ASTElement | void {
     return root
 }
 
-function makeAttrsMap (attrs: Array<Object>): Object {
+function makeAttrsMap(attrs: Array<Object>): Object {
     const map = {}
     for (let i = 0, l = attrs.length; i < l; i++) {
       if (map[attrs[i].name]) {
@@ -84,14 +95,12 @@ function makeAttrsMap (attrs: Array<Object>): Object {
 }
 
 // 处理v-for
-function processFor (el) {
+function processFor(el) {
   let exp
   if ((exp = getAndRemoveAttr(el, 'v-for'))) {
     const inMatch = exp.match(forReg)
     if (!inMatch) {
-        console.log(
-            `Invalid v-for expression: ${exp}`
-        )
+        console.log(`Invalid v-for expression: ${exp}`)
       return
     }
     el.for = inMatch[2].trim()
@@ -108,3 +117,45 @@ function processFor (el) {
     }
   }
 }
+
+// 处理attrs
+function processAttrs(el) {
+  
+    const list = el.attrsList
+    let i, l, name, rawName, value, modifiers, isProp
+    for (i = 0, l = list.length; i < l; i++) {
+      name = rawName = list[i].name
+      value = list[i].value
+      if (directionReg.test(name)) {
+        // mark element as dynamic
+        el.hasBindings = true
+        // modifiers
+        modifiers = parseModifiers(name)
+        if (modifiers) {
+          name = name.replace(modifierRE, '')
+        }
+        // v-bind\v-on等处理，暂时不管
+        // normal directives
+          name = name.replace(directionReg, '')
+          // parse arg
+          const argMatch = name.match(argRE)
+          const arg = argMatch && argMatch[1]
+          if (arg) {
+            name = name.slice(0, -(arg.length + 1))
+          }
+          addDirective(el, name, rawName, value, arg, modifiers)
+
+      } else {
+        // literal attribute 暂时不管
+      }
+    }
+}
+function parseModifiers (name: string): Object | void {
+    const match = name.match(modifierRE)
+    if (match) {
+      const ret = {}
+      match.forEach(m => { ret[m.slice(1)] = true })
+      return ret
+    }
+  }
+

@@ -1,21 +1,29 @@
 // @flow
-export function genComponentModel (
-    el: ASTElement,
-    value: string
-  ): ?boolean {
-    const baseValueExpression = '$$v'
-    let valueExpression = baseValueExpression
+import { addHandler }  from '../helpers'
 
-    valueExpression = `_n(${valueExpression})`
+// 生成v-model的render代码
+export function genAssignmentCode (
+  value: string,
+  assignment: string
+): string {
+  return `${value}=${assignment}`
+}
 
-    const assignment = `${value}=${valueExpression}`
+export function genModel (
+  el: ASTElement,
+  value: string
+): ?boolean {
+
+  let valueExpression = '$event.target.value'
+  let code = genAssignmentCode(value, valueExpression)
+  // 判断是否是输入法编辑器触发的
+  code = `if($event.target.composing)return;${code}`
+  addHandler(el, 'change', code)
+  addHandler(el, 'blur', '$forceUpdate()')
+
+  return true
+}
   
-    el.model = {
-      value: `(${value})`,
-      expression: `"${value}"`,
-      callback: `function (${baseValueExpression}) {${assignment}}`
-    }
-  }
 
    
   

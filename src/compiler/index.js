@@ -2,6 +2,7 @@
 // 找到对应的属性值然后传给Watch方法
 // import Watcher from '../observer/Watcher'
 import parse from './parser/parse'
+import optimize from './optimizer'
 
 // const loScrateReg = () => new RegExp(/\{\{(.*)\}\}/g)
 class Compiler {
@@ -12,6 +13,11 @@ class Compiler {
 
 	getAST() {
 		console.log('=============AST tree============')
+		console.dir(this.ast)
+	}
+	optimizeAST() {
+		console.log('=============After Optimize============')
+		optimize(this.ast)
 		console.dir(this.ast)
 	}
 

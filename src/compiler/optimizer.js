@@ -8,7 +8,7 @@ export default function optimize (root: ?ASTElement) {
     markStaticRoots(root, false)
 }
 
-function markStatic(node: ASTNode){
+function markStatic(node: ASTNode) {
     node.static = isStatic(node)
     if (node.type === 1) {
         for (let i = 0, l = node.children.length; i < l; i++) {
@@ -28,12 +28,10 @@ function markStatic(node: ASTNode){
  */
 function markStaticRoots (node: ASTNode, isInFor: boolean) {
     if (node.type === 1) {
-        if (node.static && node.children.length && !(
-            node.children.length === 1 &&
-            node.children[0].type === 3
-        )) {
-            node.staticRoot = true
-            return
+        if (node.static && node.children.length 
+            && !(node.children.length === 1
+            && node.children[0].type === 3)) {
+                node.staticRoot = true
         } else {
             node.staticRoot = false
         }
@@ -52,6 +50,6 @@ function isStatic (node: ASTNode): boolean {
 }
 
 // 应该从options传入，这里写死
-const isStaticKey = () =>{
-    //'type,tag,attrsList,attrsMap,plain,parent,children,attrs' 存放静态属性
+const isStaticKey = () => {
+    // 'type,tag,attrsList,attrsMap,plain,parent,children,attrs' 存放静态属性
 }

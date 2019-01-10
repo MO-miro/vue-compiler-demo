@@ -122,7 +122,7 @@ function processFor(el) {
 function processAttrs(el) {
   
     const list = el.attrsList
-    let i, l, name, rawName, value, modifiers, isProp
+    let i, l, name, rawName, value, modifiers
     for (i = 0, l = list.length; i < l; i++) {
       name = rawName = list[i].name
       value = list[i].value
@@ -158,4 +158,3 @@ function parseModifiers (name: string): Object | void {
       return ret
     }
   }
-

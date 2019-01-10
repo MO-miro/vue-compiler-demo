@@ -15,6 +15,7 @@ class Compiler {
 		console.log('=============AST tree============')
 		console.dir(this.ast)
 	}
+	
 	optimizeAST() {
 		console.log('=============After Optimize============')
 		optimize(this.ast)

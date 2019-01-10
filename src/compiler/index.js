@@ -3,6 +3,7 @@
 // import Watcher from '../observer/Watcher'
 import parse from './parser/parse'
 import optimize from './optimizer'
+import generate from './codegen/index'
 
 // const loScrateReg = () => new RegExp(/\{\{(.*)\}\}/g)
 class Compiler {
@@ -15,11 +16,17 @@ class Compiler {
 		console.log('=============AST tree============')
 		console.dir(this.ast)
 	}
-	
+
 	optimizeAST() {
 		console.log('=============After Optimize============')
 		optimize(this.ast)
 		console.dir(this.ast)
+	}
+
+	genCode() {
+		console.log('=============Render code============')
+		console.dir(generate(this.ast))
+
 	}
 
 	compile() {

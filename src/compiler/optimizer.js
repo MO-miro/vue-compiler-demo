@@ -1,6 +1,6 @@
 // @flow
 // 优化AST树
-export default function optimize (root: ?ASTElement) {
+export default function optimize(root: ?ASTElement) {
     if (!root) return
     // 第一次遍历: 标记所有的静态节点.
     markStatic(root)
@@ -26,7 +26,7 @@ function markStatic(node: ASTNode) {
  * 只有当一个节点是 static，拥有children且不只拥有一个的静态文本节点时才能被称为 static root。
  * 因为作者认为这种情况去做优化，其消耗会超过获得的收益。
  */
-function markStaticRoots (node: ASTNode, isInFor: boolean) {
+function markStaticRoots(node: ASTNode, isInFor: boolean) {
     if (node.type === 1) {
         if (node.static && node.children.length 
             && !(node.children.length === 1
@@ -35,11 +35,17 @@ function markStaticRoots (node: ASTNode, isInFor: boolean) {
         } else {
             node.staticRoot = false
         }
+        // 进行递归标记
+        if (node.children) {
+            for (let i = 0, l = node.children.length; i < l; i++) {
+                markStaticRoots(node.children[i], isInFor || !!node.for)
+            }
+        }
     }
 }
 
 // 是否静态节点
-function isStatic (node: ASTNode): boolean {
+function isStatic(node: ASTNode): boolean {
     if (node.type === 2) { // expression
       return false
     }
@@ -49,7 +55,7 @@ function isStatic (node: ASTNode): boolean {
     return !!(!node.for && !node.events) // &&  Object.keys(node).every(isStaticKey)
 }
 
-// 应该从options传入，这里写死
-const isStaticKey = () => {
-    // 'type,tag,attrsList,attrsMap,plain,parent,children,attrs' 存放静态属性
-}
+// // 应该从options传入，这里写死
+// const isStaticKey = () => {
+//     // 'type,tag,attrsList,attrsMap,plain,parent,children,attrs' 存放静态属性
+// }

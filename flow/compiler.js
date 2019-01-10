@@ -8,13 +8,18 @@ declare type ASTElement = {
   attrsMap: { [key: string]: string | null };
   parent: ASTElement | void;
   children: Array<ASTNode>;
+
+  // 标记静态节点，优化相关
   static?: boolean;
   staticRoot?: boolean;
+  staticProcessed?: boolean;
+  // 节点是否是“纯的" 是否存在attrs、事件监听、pre、指令等，影响代码生成
+  plain?: boolean;
 
   // 有绑定指令
   hasBindings?: boolean;
 
-  // v-for 指令相关
+  // v-for 相关
   for?: string;
   forProcessed?: boolean;
   key?: string;
@@ -22,17 +27,12 @@ declare type ASTElement = {
   iterator1?: string;
   iterator2?: string;
 
-  // 其他指令
+  // 其他指令（v-model）
   directives?: Array<ASTDirective>;
 
   // 事件
   events?: ASTElementHandlers;
-  // v-model 相关
-  model?: {
-    value: string;
-    callback: string;
-    expression: string;
-  };
+
 }
 
 declare type ASTExpression = {
@@ -48,8 +48,8 @@ declare type ASTText = {
   static?: boolean;
 }
 
-// 指令修饰符
-declare type ASTModifiers = { [key: string]: boolean }
+// // 指令修饰符
+// declare type ASTModifiers = { [key: string]: boolean }
 
 // 指令
 declare type ASTDirective = {
@@ -57,13 +57,13 @@ declare type ASTDirective = {
   rawName: string;
   value: string;
   arg: ?string;
-  modifiers: ?ASTModifiers;
+  // modifiers: ?ASTModifiers;
 }
 
 // 事件handler
 declare type ASTElementHandler = {
   value: string;
-  modifiers: ?ASTModifiers;
+  // modifiers: ?ASTModifiers;
 }
 
 declare type ASTElementHandlers = {

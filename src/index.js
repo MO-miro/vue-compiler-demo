@@ -1,18 +1,28 @@
 import Compiler from './compiler'
 
-document.getElementById('input').value = '<div name="coco"><span v-for="(val, key, index) in obj" >{{val}}</span><input type="text"/>hello {{name}}</div>'
+let input = document.getElementById('input')
+input.value = '<div name="coco"><span v-for="(val, key, index) in obj" >{{val}}</span><input type="text" v-model="name"/>hello {{name}}</div>'
 const parsebtn = document.getElementById('parse')
+let tpl = document.getElementById('input').value
+let compiler = new Compiler(tpl)
+input.addEventListener('change',(e) => {
+	tpl = e.target.value
+	compiler = new Compiler(tpl)
+})
+
 parsebtn.addEventListener('click', () => {
-	const tpl = document.getElementById('input').value
 	console.log(tpl)
-	const compiler = new Compiler(tpl)
 	compiler.getAST()
 })
 
 const optimizebtn = document.getElementById('optimizer')
 optimizebtn.addEventListener('click', () => {
-	const tpl = document.getElementById('input').value
 	console.log(tpl)
-	const compiler = new Compiler(tpl)
 	compiler.optimizeAST()
+})
+
+const genbtn = document.getElementById('gen')
+genbtn.addEventListener('click', () => {
+	console.log(tpl)
+	compiler.genCode()
 })

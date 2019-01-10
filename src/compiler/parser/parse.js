@@ -37,6 +37,8 @@ export default function parse(template :string) : ASTElement | void {
             processFor(element)
             // 处理其他指令
             processAttrs(element)
+
+            element.plain = !element.key && !attrsList.length
             // 处理树结构
             if (!root) {
                 root = element
@@ -122,39 +124,31 @@ function processFor(el) {
 function processAttrs(el) {
   
     const list = el.attrsList
-    let i, l, name, rawName, value, modifiers
+    let i, l, name, rawName, value  // , modifiers
     for (i = 0, l = list.length; i < l; i++) {
       name = rawName = list[i].name
       value = list[i].value
       if (directionReg.test(name)) {
         // mark element as dynamic
         el.hasBindings = true
-        // modifiers
-        modifiers = parseModifiers(name)
-        if (modifiers) {
-          name = name.replace(modifierRE, '')
-        }
+        // // modifiers
+        // modifiers = parseModifiers(name)
+        // if (modifiers) {
+        //   name = name.replace(modifierRE, '')
+        // }
         // v-bind\v-on等处理，暂时不管
         // normal directives
-          name = name.replace(directionReg, '')
-          // parse arg
-          const argMatch = name.match(argRE)
-          const arg = argMatch && argMatch[1]
-          if (arg) {
-            name = name.slice(0, -(arg.length + 1))
-          }
-          addDirective(el, name, rawName, value, arg, modifiers)
+        name = name.replace(directionReg, '')
+        // parse arg
+        const argMatch = name.match(argRE)
+        const arg = argMatch && argMatch[1]
+        if (arg) {
+        name = name.slice(0, -(arg.length + 1))
+        }
+        addDirective(el, name, rawName, value, arg)   // , modifiers
 
       } else {
         // literal attribute 暂时不管
       }
     }
 }
-function parseModifiers (name: string): Object | void {
-    const match = name.match(modifierRE)
-    if (match) {
-      const ret = {}
-      match.forEach(m => { ret[m.slice(1)] = true })
-      return ret
-    }
-  }

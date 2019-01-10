@@ -14,7 +14,9 @@ function getAndRemoveAttr(el: ASTElement, name: string): ?string {
 
 // 添加事件handler
 function addHandler(el: ASTElement, name: string, value: string) {
-  let events = el.events
+  if (!el.events) el.events = []
+  let events = el.events 
+  const newHandler = { value }
   events[name] = newHandler
 }
 
@@ -25,9 +27,9 @@ function addDirective (
   rawName: string,
   value: string,
   arg: ?string,
-  modifiers: ?ASTModifiers
+  // modifiers: ?ASTModifiers
 ) {
-  (el.directives || (el.directives = [])).push({ name, rawName, value, arg, modifiers })
+  (el.directives || (el.directives = [])).push({ name, rawName, value, arg }) // , modifiers
 }
 
 

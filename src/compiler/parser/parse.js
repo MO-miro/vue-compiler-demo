@@ -124,19 +124,13 @@ function processFor(el) {
 function processAttrs(el) {
   
     const list = el.attrsList
-    let i, l, name, rawName, value  // , modifiers
+    let i, l, name, rawName, value  
     for (i = 0, l = list.length; i < l; i++) {
       name = rawName = list[i].name
       value = list[i].value
       if (directionReg.test(name)) {
         // mark element as dynamic
         el.hasBindings = true
-        // // modifiers
-        // modifiers = parseModifiers(name)
-        // if (modifiers) {
-        //   name = name.replace(modifierRE, '')
-        // }
-        // v-bind\v-on等处理，暂时不管
         // normal directives
         name = name.replace(directionReg, '')
         // parse arg
@@ -145,8 +139,7 @@ function processAttrs(el) {
         if (arg) {
         name = name.slice(0, -(arg.length + 1))
         }
-        addDirective(el, name, rawName, value, arg)   // , modifiers
-
+        addDirective(el, name, rawName, value, arg)  
       } else {
         // literal attribute 暂时不管
       }
